@@ -60,7 +60,7 @@ export const activityRoute: FastifyPluginAsync = async (fastify) => {
       const { id } = req.params
       const { email, title } = req.body as ActivityCreateDto
 
-      const data = await activityRepo.findOne({ where: { activity_id: id } })
+      const data = await activityRepo.findOne({ where: { id } })
       if (!data) {
         return res.status(404).send({
           status: "Not Found",
@@ -74,7 +74,7 @@ export const activityRoute: FastifyPluginAsync = async (fastify) => {
       })
 
       const resDataUpdate = await activityRepo.findOne({
-        where: { activity_id: id },
+        where: { id },
       })
 
       const resData = responseSuccess(resDataUpdate)
@@ -87,7 +87,7 @@ export const activityRoute: FastifyPluginAsync = async (fastify) => {
     // @ts-ignore
     const { id } = req.params
 
-    const data = await activityRepo.findOne({ where: { activity_id: id } })
+    const data = await activityRepo.findOne({ where: { id } })
     if (!data) {
       return res.status(404).send({
         status: "Not Found",

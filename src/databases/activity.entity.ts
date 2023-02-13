@@ -9,7 +9,7 @@ import {
 @Entity({ name: "activities" })
 export class ActivityEntity {
   @PrimaryGeneratedColumn("increment")
-  activity_id!: number
+  id!: number
 
   @Column({ type: "text", name: "title" })
   title!: string

@@ -1,5 +1,5 @@
 import fastify from "fastify"
-import { ActivityEntity } from "./databases"
+import { ActivityEntity, TodoEntity } from "./databases"
 import { env } from "./env/env"
 import {
   cors,
@@ -8,6 +8,7 @@ import {
 } from "./plugin"
 import { fastifyTypeormPlugin } from "./plugin/typeorm"
 import { activityRoute } from "./route/activity.route"
+import { todoRoute } from "./route/todo.route"
 
 const server = fastify({
   logger: {
@@ -33,10 +34,12 @@ export const app = () => {
     password: env.MYSQL_PASSWORD,
     database: env.MYSQL_DBNAME,
     synchronize: false,
-    entities: [ActivityEntity],
+    entities: [ActivityEntity, TodoEntity],
   })
 
   server.register(activityRoute)
+
+  server.register(todoRoute)
 
   server.get("/", () => {
     return "Hello World"

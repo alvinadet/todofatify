@@ -2,9 +2,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
+  UpdateDateColumn
 } from "typeorm"
+import { TodoEntity } from "./todo.entity"
 
 @Entity({ name: "activities" })
 export class ActivityEntity {
@@ -22,4 +24,7 @@ export class ActivityEntity {
 
   @UpdateDateColumn({ name: "updated_at", nullable: true })
   updated_at?: Date
+
+  @OneToMany(() => TodoEntity, (t) => t.activity_group, { cascade: true })
+  todos?: TodoEntity[]
 }

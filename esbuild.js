@@ -4,6 +4,7 @@ const env = process.argv[2]
 const fs = require("fs")
 const path = require("path")
 const esbuild = require("esbuild")
+const { copy } = require("esbuild-plugin-copy")
 
 let fileArray = []
 const getFilesRecursively = (dir) => {
@@ -19,16 +20,20 @@ const getFilesRecursively = (dir) => {
 }
 getFilesRecursively("src")
 
-
 const entryPoints = fileArray.filter((file) => file.endsWith(".ts"))
 
 esbuild.build({
   entryPoints,
-  minify:true,
+  minify: true,
   logLevel: "info",
   outdir: env === "dev" ? "dist" : "build",
   platform: "node",
   format: "cjs",
   mainFields: ["module", "main"],
-  tsconfig:'./tsconfig.json'
+  tsconfig: "./tsconfig.json",
+  plugins: [
+    copy({ assets: { from: "./package.json", to: "./package.json" } }),
+    copy({ assets: { from: "./migrations/*", to: "./migrations" } }),
+    copy({ assets: { from: "./ormconfig.ts/*", to: "./ormconfig.ts" } }),
+  ],
 })

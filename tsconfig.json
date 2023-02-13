@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "CommonJS",
+    "allowJs": true,
+    "removeComments": true,
+    "resolveJsonModule": true,
+    "typeRoots": ["./node_modules/@types"],
+    "sourceMap": true,
+    "outDir": "dist",
+    "strict": true,
+    "lib": ["ESNext","ES2020"],
+    "baseUrl": "./",
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*", "migrations/**/*"],
+  "exclude": ["node_modules"]
+}

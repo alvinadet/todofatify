@@ -34,6 +34,6 @@ esbuild.build({
   plugins: [
     copy({ assets: { from: "./package.json", to: "./package.json" } }),
     copy({ assets: { from: "./migrations/*", to: "./migrations" } }),
-    copy({ assets: { from: "./ormconfig.ts/*", to: "./ormconfig.ts" } }),
+    copy({ assets: { from: "./ormconfig.ts", to: "./ormconfig.ts" } }),
   ],
 })

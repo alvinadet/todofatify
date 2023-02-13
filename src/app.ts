@@ -1,9 +1,13 @@
 import fastify from "fastify"
 import { ActivityEntity } from "./databases"
 import { env } from "./env/env"
-import { cors } from "./plugin"
+import {
+  cors,
+  fastifyErrorHandlerPlugin,
+  fastifyValidatorCompiler,
+} from "./plugin"
 import { fastifyTypeormPlugin } from "./plugin/typeorm"
-import { todoRoute } from "./route/todo"
+import { activityRoute } from "./route/activity.route"
 
 const server = fastify({
   logger: {
@@ -17,6 +21,10 @@ export const app = () => {
   // Register Plugin
   server.register(cors)
 
+  server.register(fastifyValidatorCompiler)
+
+  server.register(fastifyErrorHandlerPlugin)
+
   server.register(fastifyTypeormPlugin, {
     host: env.MYSQL_HOST,
     type: "mysql",
@@ -28,7 +36,7 @@ export const app = () => {
     entities: [ActivityEntity],
   })
 
-  server.register(todoRoute)
+  server.register(activityRoute)
 
   server.get("/", () => {
     return "Hello World"

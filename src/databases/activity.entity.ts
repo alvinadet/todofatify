@@ -1,7 +1,6 @@
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -15,15 +14,12 @@ export class ActivityEntity {
   @Column({ type: "text", name: "title" })
   title!: string
 
-  @Column({ name: "email", type: "varchar" })
-  email!: string
+  @Column({ name: "email", type: "varchar", nullable: true })
+  email?: string
 
   @CreateDateColumn({ name: "created_at" })
   created_at!: Date
 
   @UpdateDateColumn({ name: "updated_at", nullable: true })
   updated_at?: Date
-
-  @DeleteDateColumn({ name: "deleted_at", nullable: true })
-  deleted_at?: Date
 }

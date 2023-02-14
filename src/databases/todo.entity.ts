@@ -12,12 +12,14 @@ import { ActivityEntity } from "./activity.entity"
 @Entity({ name: "todos" })
 export class TodoEntity {
   @PrimaryGeneratedColumn("increment")
-  id!: number
+  todo_id!: number
 
   @Column({ type: "text", name: "title", nullable: true })
   title?: string
 
-  @ManyToOne(() => ActivityEntity, (t) => t.id, { onDelete: "CASCADE" })
+  @ManyToOne(() => ActivityEntity, (t) => t.activity_id, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "activity_group_id" })
   activity_group!: ActivityEntity
 

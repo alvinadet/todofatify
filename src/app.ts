@@ -21,11 +21,8 @@ const server = fastify({
 export const app = () => {
   // Register Plugin
   server.register(cors)
-
   server.register(fastifyValidatorCompiler)
-
   server.register(fastifyErrorHandlerPlugin)
-
   server.register(fastifyTypeormPlugin, {
     host: env.MYSQL_HOST,
     type: "mysql",
@@ -33,8 +30,12 @@ export const app = () => {
     username: env.MYSQL_USER,
     password: env.MYSQL_PASSWORD,
     database: env.MYSQL_DBNAME,
-    synchronize: false,
+    synchronize: true,
     entities: [ActivityEntity, TodoEntity],
+  })
+
+  server.addHook("onRoute", (t) => {
+    t.logLevel = "error"
   })
 
   server.register(activityRoute)

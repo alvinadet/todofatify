@@ -5,6 +5,7 @@ import { ResponseStatusMessageDto, responseSuccess } from "../lib"
 import {
   activityCreateSchema,
   activityUpdateSchema,
+  ParamIdSchema,
 } from "../schema/activity.schema"
 
 export const activityRoute: FastifyPluginAsync = async (fastify) => {
@@ -20,17 +21,22 @@ export const activityRoute: FastifyPluginAsync = async (fastify) => {
   })
 
   fastify.get(`${parentRouter}/:id`, async (req, res) => {
-    // @ts-ignore
-    const { id } = req.params
+    const { id } = req.params as { id: string }
     const data = await activityRepo.findOne(id)
-
     if (!data) {
       return res.status(404).send({
         status: "Not Found",
         message: `Activity with ID ${id} Not Found`,
       } as ResponseStatusMessageDto)
     }
-    const resData = responseSuccess(data)
+
+    const resData = responseSuccess({
+      created_at: data?.created_at,
+      id: data?.activity_id,
+      title: data?.title,
+      email: data?.email,
+      updated_at: data?.updated_at,
+    })
     return res.status(200).send(resData)
   })
 
@@ -41,10 +47,14 @@ export const activityRoute: FastifyPluginAsync = async (fastify) => {
     },
     async (req, res) => {
       const { email, title } = req.body as ActivityCreateDto
-
       const data = await activityRepo.save({ email: email ? email : "", title })
-
-      const resData = responseSuccess(data)
+      const resData = responseSuccess({
+        created_at: data?.created_at,
+        id: data?.activity_id,
+        title: data?.title,
+        email: data?.email,
+        updated_at: data?.updated_at,
+      })
 
       return res.status(201).send(resData)
     }
@@ -53,13 +63,12 @@ export const activityRoute: FastifyPluginAsync = async (fastify) => {
   fastify.patch(
     `${parentRouter}/:id`,
     {
-      schema: { body: activityUpdateSchema },
+      schema: { body: activityUpdateSchema, params: ParamIdSchema },
     },
     async (req, res) => {
-      // @ts-ignore
-      const { id } = req.params
+      const { id } = req.params as { id: string }
       const { email, title } = req.body as ActivityCreateDto
-      const data = await activityRepo.findOne({ where: { id } })
+      const data = await activityRepo.findOne({ where: { activity_id: id } })
       if (!data) {
         return res.status(404).send({
           status: "Not Found",
@@ -67,32 +76,28 @@ export const activityRoute: FastifyPluginAsync = async (fastify) => {
         })
       }
 
+      const updatedEmail = email ? email : data.email
       await activityRepo.update(id, {
         title,
-        email,
+        email: updatedEmail,
       })
 
-      const resDataUpdate = await activityRepo.findOne({
-        where: { id },
-      })
-
+      const now = new Date().toISOString() as unknown as Date
       const resData = responseSuccess({
-        created_at: resDataUpdate?.created_at,
-        id: resDataUpdate?.id,
-        title: resDataUpdate?.title,
-        email: resDataUpdate?.email,
-        updated_at: resDataUpdate?.updated_at,
+        id: Number(id),
+        title,
+        email: updatedEmail,
+        created_at: data.created_at,
+        updated_at: now,
       } as ActivityDto)
-
       return res.status(200).send(resData)
     }
   )
 
   fastify.delete(`${parentRouter}/:id`, async (req, res) => {
-    // @ts-ignore
-    const { id } = req.params
+    const { id } = req.params as { id: string }
 
-    const data = await activityRepo.findOne({ where: { id } })
+    const data = await activityRepo.findOne({ where: { activity_id: id } })
     if (!data) {
       return res.status(404).send({
         status: "Not Found",
@@ -101,7 +106,6 @@ export const activityRoute: FastifyPluginAsync = async (fastify) => {
     }
 
     await activityRepo.delete(id)
-
     return res.status(200).send(responseSuccess({}))
   })
 }

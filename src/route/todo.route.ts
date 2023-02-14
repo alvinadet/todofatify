@@ -21,7 +21,18 @@ export const todoRoute: FastifyPluginAsync = async (fastify) => {
       qb.where("q.activity_group = :activity_group_id", { activity_group_id })
     }
 
-    const data = await qb.getMany()
+    const data = (await qb.getMany()).map((t) => {
+      return {
+        // @ts-ignore
+        activity_group_id: t.activity_group_id,
+        created_at: t.created_at,
+        id: t.todo_id,
+        is_active: t.is_active,
+        priority: t.priority,
+        title: t.title,
+        updated_at: t.updated_at,
+      } as TodoDto
+    })
 
     const resData = responseSuccess(data)
     return res.status(200).send(resData)
@@ -34,7 +45,7 @@ export const todoRoute: FastifyPluginAsync = async (fastify) => {
     const qb = todoRepo
       .createQueryBuilder("q")
       .loadRelationIdAndMap("activity_group_id", "q.activity_group")
-      .where("q.id = :id", { id })
+      .where("q.todo_id = :id", { id })
 
     const data = await qb.getOne()
 
@@ -45,7 +56,16 @@ export const todoRoute: FastifyPluginAsync = async (fastify) => {
       } as ResponseStatusMessageDto)
     }
 
-    const resData = responseSuccess(data)
+    const resData = responseSuccess({
+      // @ts-ignore
+      activity_group_id: data.activity_group_id,
+      created_at: data.created_at,
+      id: data.todo_id,
+      is_active: data.is_active,
+      priority: data.priority,
+      title: data.title,
+      updated_at: data.updated_at,
+    } as TodoDto)
 
     return res.status(200).send(resData)
   })
@@ -67,10 +87,14 @@ export const todoRoute: FastifyPluginAsync = async (fastify) => {
       })
 
       const data = await todoRepo.save(payload)
-
       const resData = responseSuccess({
-        ...data,
-        activity_group_id: activity_group_id,
+        activity_group_id,
+        created_at: data.created_at,
+        id: data.todo_id,
+        is_active: data.is_active,
+        priority: data.priority,
+        title: data.title,
+        updated_at: data.updated_at,
       } as TodoDto)
 
       return res.status(201).send(resData)
@@ -87,8 +111,11 @@ export const todoRoute: FastifyPluginAsync = async (fastify) => {
       const { id } = req.params
       const { is_active, title, priority } = req.body as TodoCreateDto
 
-      const data = await todoRepo.findOne(id)
-
+      const qb = todoRepo
+        .createQueryBuilder("q")
+        .loadRelationIdAndMap("activity_group_id", "q.activity_group")
+        .where("q.todo_id = :id", { id })
+      const data = await qb.getOne()
       if (!data) {
         return res.status(404).send({
           status: "Not Found",
@@ -96,7 +123,11 @@ export const todoRoute: FastifyPluginAsync = async (fastify) => {
         })
       }
 
-      const schema = new Object as TodoDto
+      const schema = new Object({
+        title: data.title,
+        priority: data.priority,
+        is_active: data.is_active,
+      }) as TodoDto
 
       if (title) {
         schema.title = title
@@ -112,14 +143,17 @@ export const todoRoute: FastifyPluginAsync = async (fastify) => {
 
       await todoRepo.update(id, schema)
 
-      const qb = todoRepo
-        .createQueryBuilder("q")
-        .loadRelationIdAndMap("activity_group_id", "q.activity_group")
-        .where("q.id = :id", { id })
-
-      const resDataUpdate = await qb.getOne()
-
-      const resData = responseSuccess(resDataUpdate)
+      const now = new Date().toISOString() as unknown as Date
+      const resData = responseSuccess({
+        activity_group_id: (data as unknown as { activity_group_id: number })
+          .activity_group_id,
+        created_at: data?.created_at,
+        id: data.todo_id,
+        is_active: schema.is_active,
+        priority: schema?.priority,
+        title: schema?.title,
+        updated_at: now,
+      } as TodoDto)
 
       return res.status(200).send(resData)
     }
@@ -129,7 +163,7 @@ export const todoRoute: FastifyPluginAsync = async (fastify) => {
     // @ts-ignore
     const { id } = req.params
 
-    const data = await todoRepo.findOne({ where: { id } })
+    const data = await todoRepo.findOne({ where: { todo_id: id } })
     if (!data) {
       return res.status(404).send({
         status: "Not Found",

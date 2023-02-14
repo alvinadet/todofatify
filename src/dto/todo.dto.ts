@@ -1,6 +1,7 @@
 import { TodoEntity } from "../databases"
 
-export interface TodoDto extends TodoEntity {
+export interface TodoDto extends Omit<TodoEntity, "todo_id"> {
+  id: number
   activity_group_id: number
 }
 

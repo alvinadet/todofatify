@@ -6,7 +6,7 @@
   "scripts": {
     "build": "rm -rf build && node esbuild.js",
     "dev": "nodemon",
-    "start": "yarn db:up && node index.js",
+    "start": "node index.js",
     "orm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js -f ./ormconfig.ts",
     "db:generate": "yarn orm migration:generate -n",
     "db:up": "yarn orm migration:run",
@@ -18,7 +18,9 @@
     "dotenv": "^16.0.3",
     "fastify": "^4.12.0",
     "fastify-plugin": "^4.5.0",
+    "lru-cache": "^7.14.1",
     "mysql2": "^3.1.2",
+    "query-string": "^8.1.0",
     "reflect-metadata": "^0.1.13",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.1.2",
@@ -26,10 +28,10 @@
     "yup": "^1.0.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.20",
-    "esbuild-plugin-copy": "^2.0.2",
     "@types/node": "^18.13.0",
     "esbuild": "^0.17.7",
+    "esbuild-plugin-copy": "^2.0.2",
+    "nodemon": "^2.0.20",
     "typescript": "^4.9.5"
   }
 }

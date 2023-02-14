@@ -4,14 +4,14 @@ import {
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
 } from "typeorm"
 import { TodoEntity } from "./todo.entity"
 
 @Entity({ name: "activities" })
 export class ActivityEntity {
   @PrimaryGeneratedColumn("increment")
-  id!: number
+  activity_id!: number
 
   @Column({ type: "text", name: "title" })
   title!: string

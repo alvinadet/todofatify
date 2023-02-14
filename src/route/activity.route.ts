@@ -1,6 +1,6 @@
 import { FastifyPluginAsync } from "fastify"
 import { ActivityEntity } from "../databases"
-import { ActivityCreateDto } from "../dto"
+import { ActivityCreateDto, ActivityDto } from "../dto"
 import { ResponseStatusMessageDto, responseSuccess } from "../lib"
 import {
   activityCreateSchema,
@@ -59,7 +59,6 @@ export const activityRoute: FastifyPluginAsync = async (fastify) => {
       // @ts-ignore
       const { id } = req.params
       const { email, title } = req.body as ActivityCreateDto
-
       const data = await activityRepo.findOne({ where: { id } })
       if (!data) {
         return res.status(404).send({
@@ -70,14 +69,20 @@ export const activityRoute: FastifyPluginAsync = async (fastify) => {
 
       await activityRepo.update(id, {
         title,
-        email: email ? email : "",
+        email,
       })
 
       const resDataUpdate = await activityRepo.findOne({
         where: { id },
       })
 
-      const resData = responseSuccess(resDataUpdate)
+      const resData = responseSuccess({
+        created_at: resDataUpdate?.created_at,
+        id: resDataUpdate?.id,
+        title: resDataUpdate?.title,
+        email: resDataUpdate?.email,
+        updated_at: resDataUpdate?.updated_at,
+      } as ActivityDto)
 
       return res.status(200).send(resData)
     }

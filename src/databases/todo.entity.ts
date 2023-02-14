@@ -14,8 +14,8 @@ export class TodoEntity {
   @PrimaryGeneratedColumn("increment")
   id!: number
 
-  @Column({ type: "text", name: "title" })
-  title!: string
+  @Column({ type: "text", name: "title", nullable: true })
+  title?: string
 
   @ManyToOne(() => ActivityEntity, (t) => t.id, { onDelete: "CASCADE" })
   @JoinColumn({ name: "activity_group_id" })

@@ -1,6 +1,6 @@
 import { FastifyPluginAsync } from "fastify"
 import { TodoEntity } from "../databases"
-import { TodoCreateDto } from "../dto/todo.dto"
+import { TodoCreateDto, TodoDto } from "../dto/todo.dto"
 import { ResponseStatusMessageDto, responseSuccess } from "../lib"
 import { todoCreateSchema, todoUpdateSchema } from "../schema/todo.schema"
 
@@ -61,14 +61,17 @@ export const todoRoute: FastifyPluginAsync = async (fastify) => {
 
       const payload = todoRepo.create({
         activity_group: Number(activity_group_id) as any,
-        is_active,
+        is_active: is_active ? is_active : true,
         priority: priority ? priority : "very-high",
         title,
       })
 
       const data = await todoRepo.save(payload)
 
-      const resData = responseSuccess(data)
+      const resData = responseSuccess({
+        ...data,
+        activity_group_id: activity_group_id,
+      } as TodoDto)
 
       return res.status(201).send(resData)
     }
@@ -89,11 +92,25 @@ export const todoRoute: FastifyPluginAsync = async (fastify) => {
       if (!data) {
         return res.status(404).send({
           status: "Not Found",
-          message: `Activity with ID ${id} Not Found`,
+          message: `Todo with ID ${id} Not Found`,
         })
       }
 
-      await todoRepo.update(id, { priority, is_active, title })
+      const schema = new Object as TodoDto
+
+      if (title) {
+        schema.title = title
+      }
+
+      if (priority) {
+        schema.priority = priority
+      }
+
+      if (is_active) {
+        schema.is_active = is_active
+      }
+
+      await todoRepo.update(id, schema)
 
       const qb = todoRepo
         .createQueryBuilder("q")
@@ -116,7 +133,7 @@ export const todoRoute: FastifyPluginAsync = async (fastify) => {
     if (!data) {
       return res.status(404).send({
         status: "Not Found",
-        message: `Activity with ID ${id} Not Found`,
+        message: `Todo with ID ${id} Not Found`,
       })
     }
 

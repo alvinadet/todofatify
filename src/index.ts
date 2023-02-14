@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import { app } from "./app"
 
-app().listen({ port: 8080 }, (err, address) => {
+app().listen({ host:'0.0.0.0' , port: 3030}, (err, address) => {
   if (err) {
     console.error(err)
     process.exit(1)
